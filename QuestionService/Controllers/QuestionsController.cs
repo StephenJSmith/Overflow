@@ -207,4 +207,21 @@ public class QuestionsController(
 
         return NoContent();
     }
+
+    [HttpGet("errors")]
+    public ActionResult GetErrorResponses(int code)
+    {
+        ModelState.AddModelError("Problem one", "Validation problem one");
+        ModelState.AddModelError("Problem two", "Validation problem two");
+        
+        return code switch
+        {
+            400 => BadRequest("Opposite of good request"),
+            401 => Unauthorized("You are not authorized"),
+            403 => Forbid(),
+            404 => NotFound("Not found"),
+            500 => throw new Exception("This is a server error"),
+            _ => ValidationProblem(ModelState)
+        };
+    }
 }   
