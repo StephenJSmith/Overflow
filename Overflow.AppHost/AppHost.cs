@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
@@ -72,6 +71,11 @@ var yarp = builder
         .WithEndpoint(port: 8001, targetPort: 8001, scheme: "http", name: "gateway", isExternal: true)
         .WithEnvironment("VIRTUAL_HOST", "api.overflow.local")
         .WithEnvironment("VIRTUAL_PORT", "8001");
+
+var webapp = builder
+        .AddNpmApp("webapp", "../webapp", "dev")
+        .WithReference(keycloak)
+        .WithEndpoint(env: "PORT", port: 3000, scheme: "http", name: "webapp", isExternal: true);
 
 if (!builder.Environment.IsDevelopment())
 {

@@ -22,7 +22,7 @@ public class TagService(IMemoryCache cache, QuestionDbContext db)
         }) ?? [];
     }
 
-    public async Task<bool> AreTagsValidASync(List<string> slugs)
+    public async Task<bool> AreTagsValidAsync(List<string> slugs)
     {
         var tags = await GetTags();
         var tagSet = tags
