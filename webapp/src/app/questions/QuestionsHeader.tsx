@@ -3,9 +3,9 @@
 import {Button} from "@heroui/button";
 import Link from "next/link";
 import {Tab, Tabs} from "@heroui/tabs";
-// import {useTagStore} from "@/lib/hooks/useTagStore";
-// import {useRouter, useSearchParams} from "next/navigation";
-// import {Key} from "react";
+import {useRouter, useSearchParams} from "next/navigation";
+import {Key} from "react";
+import {useTagStore} from "@/lib/useTagStore";
 
 type Props = {
     tag?: string;
@@ -13,6 +13,7 @@ type Props = {
 }
 
 export default function QuestionsHeader({tag, total}: Props) {
+    const selectedTag = useTagStore(state => state.getTagBySlug(tag ?? ''))
     // const router = useRouter();
     // const searchParams = useSearchParams();
     // const selectedTag = useTagStore(state => state.getTagBySlug(tag ?? ''))
@@ -37,7 +38,7 @@ export default function QuestionsHeader({tag, total}: Props) {
                     <div className='text-3xl font-semibold'>
                         {tag ? `[${tag}]` : 'Newest Questions'}
                     </div>
-                    {/*<p className='font-light'>{selectedTag?.description}</p>*/}
+                    <p className='font-light'>{selectedTag?.description}</p>
                 </div>
 
                 <Button as={Link} href='/questions/ask' color='secondary'>

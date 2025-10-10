@@ -4,6 +4,7 @@ import {Chip} from "@heroui/chip";
 import {Avatar} from "@heroui/avatar";
 import clsx from "clsx";
 import {CheckIcon} from "@heroicons/react/24/outline";
+import {timeAgo} from "@/lib/util";
 
 type Props = {
     question: Question;
@@ -40,7 +41,7 @@ export default function QuestionCard({question}: Props) {
                         href={`/questions/${question.id}`}
                         className='text-primary font-semibold hover:underline first-letter:uppercase'
                     >
-                        {question.title} ({question.id})
+                        {question.title}
                     </Link>
                     <div
                         className='line-clamp-2'
@@ -69,7 +70,7 @@ export default function QuestionCard({question}: Props) {
                             <Link href={`/profiles/${question.askerId}`}>
                                 {question.askerDisplayName}
                             </Link>
-                            <span>asked {question.createdAt}</span>
+                            <span>asked {timeAgo(question.createdAt)}</span>
                         </div>
                     </div>
                 </div>
