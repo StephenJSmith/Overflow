@@ -16,7 +16,7 @@ namespace QuestionService.Controllers;
 [Route("[controller]")]
 public class QuestionsController(QuestionDbContext db, IMessageBus bus, TagService tagService) : ControllerBase
 {
-    [Authorize]
+    [Authorize] 
     [HttpPost]
     public async Task<ActionResult<Question>> CreateQuestion(CreateQuestionDto dto)
     {
@@ -202,22 +202,5 @@ public class QuestionsController(QuestionDbContext db, IMessageBus bus, TagServi
         await bus.PublishAsync(new AnswerAccepted(questionId));
         
         return NoContent();
-    }
-
-    [HttpGet("errors")]
-    public ActionResult GetErrorResponses(int code)
-    {
-        ModelState.AddModelError("Problem one", "Validation problem one");
-        ModelState.AddModelError("Problem two", "Validation problem two");
-        
-        return code switch
-        {
-            400 => BadRequest("Opposite of good request"),
-            401 => Unauthorized(),
-            403 => Forbid(),
-            404 => NotFound(),
-            500 => throw new Exception("This is a server error"),
-            _ => ValidationProblem(ModelState)
-        };
     }
 }

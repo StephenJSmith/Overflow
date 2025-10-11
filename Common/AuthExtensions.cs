@@ -7,7 +7,7 @@ public static class AuthExtensions
 {
     public static IServiceCollection AddKeyCloakAuthentication(this IServiceCollection services)
     {
-       services.AddAuthentication()
+        services.AddAuthentication()
             .AddKeycloakJwtBearer(serviceName: "keycloak", realm: "overflow", options =>
             {
                 options.RequireHttpsMetadata = false;
@@ -18,11 +18,12 @@ public static class AuthExtensions
                     [
                         "http://localhost:6001/realms/overflow",
                         "http://keycloak/realms/overflow",
-                        "http://id.overflow.local/realms/overflow"
-                    ]
+                        "http://id.overflow.local/realms/overflow",
+                    ],
+                    ClockSkew = TimeSpan.Zero,
                 };
-            });   
-       
-       return services;
+            });
+
+        return services;
     }
 }
