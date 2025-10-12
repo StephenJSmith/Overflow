@@ -5,7 +5,7 @@ import Link from "next/link";
 import {Tab, Tabs} from "@heroui/tabs";
 import {useRouter, useSearchParams} from "next/navigation";
 import {Key} from "react";
-import {useTagStore} from "@/lib/useTagStore";
+import {useTagStore} from "@/lib/hooks/useTagStore";
 
 type Props = {
     tag?: string;
