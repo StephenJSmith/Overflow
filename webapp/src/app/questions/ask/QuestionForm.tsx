@@ -1,5 +1,6 @@
 'use client';
 
+import {useTagStore} from "@/lib/hooks/useTagStore";
 import {Form} from "@heroui/form";
 import {Input} from "@heroui/input";
 import {Select, SelectItem} from "@heroui/select";
@@ -7,14 +8,15 @@ import {Button} from "@heroui/button";
 import {Controller, useForm} from "react-hook-form";
 import {questionSchema, QuestionSchema} from "@/lib/schemas/questionSchema";
 import {zodResolver} from "@hookform/resolvers/zod";
-import RichTextEditor from "@/components/rte/RichTextEditor";
 import clsx from "clsx";
 import {useRouter} from "next/navigation";
 import {postQuestion, updateQuestion} from "@/lib/actions/question-actions";
 import {handleError} from "@/lib/util";
 import {Question} from "@/lib/types";
 import {useEffect, useTransition} from "react";
-import {useTagStore} from "@/lib/hooks/useTagStore";
+import dynamic from "next/dynamic";
+
+const RichTextEditor = dynamic(() => import('@/components/rte/RichTextEditor'), {ssr: false});
 
 type Props = {
     questionToUpdate?: Question
