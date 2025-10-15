@@ -14,48 +14,50 @@ namespace Common;
 
 public static class WolverineExtensions
 {
-    public static async Task UseWolverinWithRabbitMqAsync(
-        this IHostApplicationBuilder builder, 
-        Action<WolverineOptions> configureMessaging) 
+    public static async Task UseWolverineWithRabbitMqAsync(
+        this IHostApplicationBuilder builder, Action<WolverineOptions> configureMessaging)
     {
-        var retryPolicy = Policy
-            .Handle<BrokerUnreachableException>()
-            .Or<SocketException>()
-            .WaitAndRetryAsync(
-                retryCount: 5,
-                retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-                (exception, timeSpan, retryCount) =>
-                {
-                    Console.WriteLine($"Retry attemp {retryCount} failed. Retrying in {timeSpan.Seconds} seconds...");
-                });
+        var isEfDesignTime = AppDomain.CurrentDomain.FriendlyName.StartsWith("ef", StringComparison.OrdinalIgnoreCase);
 
-        await retryPolicy.ExecuteAsync(async () =>
+        if (!isEfDesignTime)
         {
-            var endpoint = builder.Configuration.GetConnectionString("messaging")
-                           ?? throw new InvalidOperationException("Messaging connection string not found.");
-            var factory = new ConnectionFactory
-            {
-                Uri = new Uri(endpoint)
-            };
-            await using var connection = await factory.CreateConnectionAsync();
-        });
+            var retryPolicy = Policy
+                .Handle<BrokerUnreachableException>()
+                .Or<SocketException>()
+                .WaitAndRetryAsync(
+                    retryCount: 5,
+                    retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                    (exception, timeSpan, retryCount) =>
+                    {
+                        Console.WriteLine($"Retry attempt {retryCount} failed.  Retrying in " +
+                                          $"{timeSpan.Seconds} seconds...");
+                    });
 
-        builder.Services
-            .AddOpenTelemetry()
-            .WithTracing(traceProviderBuilder =>
+            await retryPolicy.ExecuteAsync(async () =>
             {
-                traceProviderBuilder
-                    .SetResourceBuilder(ResourceBuilder
-                        .CreateDefault()
-                        .AddService(builder.Environment.ApplicationName))
-                    .AddSource("Wolverine");
+                var endpoint = builder.Configuration.GetConnectionString("messaging")
+                               ?? throw new InvalidOperationException("messaging connection string not found");
+
+                var factory = new ConnectionFactory
+                {
+                    Uri = new Uri(endpoint)
+                };
+                await using var connection = await factory.CreateConnectionAsync();
             });
-    
+        }
+        
+        builder.Services.AddOpenTelemetry().WithTracing(traceProviderBuilder =>
+        {
+            traceProviderBuilder.SetResourceBuilder(ResourceBuilder.CreateDefault()
+                    .AddService(builder.Environment.ApplicationName))
+                .AddSource("Wolverine");
+        });
+        
         builder.UseWolverine(opts =>
         {
             opts.UseRabbitMqUsingNamedConnection("messaging")
                 .AutoProvision()
-                .DeclareExchange("questions");
+                .UseConventionalRouting();
             
             configureMessaging(opts);
         });
